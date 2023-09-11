@@ -10,13 +10,12 @@
 - name: install lesser system packages
   become: true
   package:
-    name:
-      [
+    name: [
         "curl",
         "flatpak",
         "lsof",
         "tmux",
-        "fzf",
+        # "fzf",
         "xclip",
         "tldr",
         "ripgrep",
@@ -30,7 +29,6 @@
 - name: add flatpak repo
   command:
     cmd: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    warn: false
   become: false # It's run under user context because of the --user flag
   tags:
     - install

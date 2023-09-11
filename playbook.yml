@@ -27,10 +27,11 @@
       tags:
         - install
         - core
+      when: ansible_pkg_mgr == 'apt'
   roles:
     - role: core
     - role: user_session
-    - role: git
+    # - role: git
     - role: ssh
     - role: dotfiles
     - role: nvim

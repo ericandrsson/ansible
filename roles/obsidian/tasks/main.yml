@@ -1,10 +1,12 @@
 - name: install obsidian using flatpak
   command:
-    cmd: flatpak install -y flathub md.obsidian.Obsidian
-    warn: false # Suppresses warning about using the command module
+    cmd: flatpak install --user -y flathub md.obsidian.Obsidian
   become: false # Ensures the user context is maintained
   register: install_result
-  changed_when: "'Installing' in install_result.stdout"
+  changed_when:
+    - install_result is defined
+    - "'stdout' in install_result"
+    - "'Installing' in install_result.stdout"
   tags:
     - obsidian
 
