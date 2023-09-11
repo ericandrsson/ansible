@@ -40,3 +40,4 @@
     - role: pyenv
     - role: direnv
     - role: obsidian
+    - role: brave

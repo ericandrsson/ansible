@@ -1,0 +1,29 @@
+- name: install brave on dns systems
+  block:
+    - name: isntall dnf-plugins-core
+      ansible.builtin.dnf:
+        name: dnf-plugins-core
+        state: present
+      become: true
+
+    - name: add Brave browser repo
+      ansible.builtin.command:
+        cmd: dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+      become: true
+
+    - name: import Brave GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+      become: true
+
+    - name: install brave browser and keyring
+      ansible.builtin.dnf:
+        name:
+          - brave-browser
+          - brave-keyring
+        state: present
+      become: true
+  when: ansible_pkg_mgr == "dnf"
+  tags:
+    - brave
