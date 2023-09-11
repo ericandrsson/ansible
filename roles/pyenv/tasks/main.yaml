@@ -1,0 +1,65 @@
+- name: clone pyenv
+  ansible.builtin.git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: "{{ ansible_env.HOME }}/.pyenv"
+    version: v2.3.23
+
+- name: build dynamic bash extension
+  shell: |
+    src/configure;
+    make -C src;
+  args:
+    chdir: "{{ ansible_env.HOME }}/.pyenv"
+  register: result
+  changed_when: '"gcc" in result.stdout'
+
+- name: setup variables in .profile
+  blockinfile:
+    marker: "# {mark} ANSIBLE PYENV"
+    create: yes
+    path: "{{ ansible_env.HOME }}/.profile"
+    block: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init --path)"
+
+- name: setup variables in .bash_profile
+  blockinfile:
+    marker: "# {mark} ANSIBLE PYENV_PRE"
+    path: "{{ ansible_env.HOME }}/.bash_profile"
+    insertbefore: "# Get the aliases and functions"
+    block: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+
+- name: add initialization
+  blockinfile:
+    marker: "# {mark} ANSIBLE PYENV_POST"
+    path: "{{ ansible_env.HOME }}/.bash_profile"
+    block: |
+      if command -v pyenv &> /dev/null
+      then
+        eval "$(pyenv init --path)"
+      fi
+
+- name: add pyenv to session init
+  blockinfile:
+    marker: "# {mark} ANSIBLE PYENV"
+    path: "{{ managed_bashrc_file }}"
+    block: |
+      if command -v pyenv &> /dev/null
+      then
+        eval "$(pyenv init -)"
+      fi
+
+- name: install python dependencies
+  become: yes
+  package:
+    name:
+      - openssl-devel
+      - readline-devel
+      - sqlite-devel
+      - bzip2-devel
+      - libffi-devel
+    state: present
+  when: ansible_pkg_mgr == 'dnf'

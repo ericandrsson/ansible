@@ -1,0 +1,41 @@
+- hosts: localhost
+  vars:
+    managed_bashrc:
+      name: ".managedbashrc"
+      path: "{{ ansible_env.HOME }}/{{ vars.managed_bashrc.name}}"
+    user_bashrc:
+      name: ".userbashrc"
+      path: "{{ ansible_env.HOME }}/{{ vars.user_bashrc.name}}"
+    zshrc:
+      name: ".zshrc"
+      path: "{{ ansible_env.HOME }}/{{ vars.zshrc.name}}"
+
+    managed_bashrc_file: "{{ ansible_env.HOME }}/{{ vars.managed_bashrc.name }}"
+    user_bashrc_file: "{{ ansible_env.HOME }}/{{ vars.user_bashrc.name }}"
+    zshrc_file: "{{ ansible_env.HOME }}/{{ vars.zshrc.name }}"
+
+    source_key: "./ssh-keys/id_ed25519"
+    dest_key: "{{ansible_env.HOME}}/.ssh/id_ed25519"
+
+  pre_tasks:
+    - name: Update Apt
+      become: true
+      apt:
+        force_apt_get: true
+        update_cache: true
+        state: present
+      tags:
+        - install
+        - core
+  roles:
+    - role: core
+    - role: user_session
+    - role: git
+    - role: ssh
+    - role: dotfiles
+    - role: nvim
+    - role: zsh
+    - role: powerlevel10k
+    - role: pyenv
+    - role: direnv
+    - role: obsidian

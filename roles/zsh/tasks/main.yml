@@ -1,0 +1,39 @@
+- name: install zsh
+  become: true
+  package:
+    name: zsh
+    state: present
+  tags: &tags_for_zsh_tasks ["install", "productivity", "dotfiles", "zsh"]
+
+- name: change shell to zsh
+  become: true
+  shell: chsh -s $(which zsh)
+  tags: *tags_for_zsh_tasks
+
+- name: check that the .oh-my-zsh exists
+  stat:
+    path: "{{ansible_env.HOME}}/.oh-my-zsh"
+  register: oh_my_stats
+  tags: *tags_for_zsh_tasks
+
+- name: clone oh-my-zsh repository
+  git:
+    repo: "https://github.com/robbyrussell/oh-my-zsh.git"
+    dest: "{{ansible_env.HOME}}/.oh-my-zsh"
+  tags: *tags_for_zsh_tasks
+  when: oh_my_stats.stat.exists == False
+
+- name: install zsh-autosuggestions
+  ansible.builtin.git:
+    repo: "https://github.com/zsh-users/zsh-autosuggestions.git"
+    dest: "{{ansible_env.HOME}}/.oh-my-zsh/plugins/zsh-autosuggestions"
+  tags: *tags_for_zsh_tasks
+
+- name: enable zsh-autosuggestions plugin in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ansible_env.HOME}}/.zshrc"
+    backrefs: yes
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 zsh-autosuggestions)'
+    state: present
+  tags: *tags_for_zsh_tasks

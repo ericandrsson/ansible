@@ -1,0 +1,27 @@
+- name: install stow
+  become: true
+  package:
+    name: stow
+    state: present
+  tags:
+    - install
+    - dotfiles
+    - stow
+- name: clone .dotfiles.git
+  ansible.builtin.git:
+    repo: "git@github.com:ericandrsson/.dotfiles.git"
+    dest: "{{ansible_env.HOME}}/.dotfiles"
+    recursive: yes
+    update: yes
+    accept_hostkey: yes
+    version: main
+  tags:
+    - install
+    - dotfiles
+    - stow
+- name: stow dotfiles
+  shell: cd $HOME/.dotfiles && ./install
+  tags:
+    - install
+    - dotfiles
+    - stow

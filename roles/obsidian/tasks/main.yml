@@ -1,0 +1,29 @@
+- name: install obsidian using flatpak
+  command:
+    cmd: flatpak install -y flathub md.obsidian.Obsidian
+    warn: false # Suppresses warning about using the command module
+  become: false # Ensures the user context is maintained
+  register: install_result
+  changed_when: "'Installing' in install_result.stdout"
+  tags:
+    - obsidian
+
+- name: clone obsidian vault
+  git:
+    repo: "git@github.com:ericandrsson/obsidian-vault.git"
+    dest: "{{ansible_env.HOME}}/.obsidian-vault"
+    clone: yes
+    update: yes
+  tags:
+    - obsidian
+    - clone
+
+- name: add obsidian alias with marker
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.aliases"
+    block: |
+      alias obsidian='flatpak run md.obsidian.Obsidian'
+    marker: "# {mark} ANSIBLE OBSIDIAN ALIAS"
+    create: yes
+  tags:
+    - obsidian

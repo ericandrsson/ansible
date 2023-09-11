@@ -1,0 +1,50 @@
+- name: remove nvim if it exists
+  shell: rm -rf ~/nvim
+  tags:
+    - install
+    - nvim
+
+- name: install dependencies for ubuntu/debian
+  become: true
+  apt:
+    name:
+      - ninja-build
+      - gettext
+      - cmake
+      - unzip
+      - curl
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  tags:
+    - install
+    - nvim
+
+- name: install dependencies for centos/rhel/fedora
+  become: true
+  dnf:
+    name:
+      - ninja-build
+      - cmake
+      - gcc
+      - make
+      - unzip
+      - gettext
+      - curl
+  when: ansible_distribution in ['CentOS', 'RedHat', 'Fedora']
+  tags:
+    - install
+    - nvim
+
+- name: clone nvim
+  ansible.builtin.git:
+    repo: "git@github.com:neovim/neovim.git"
+    dest: "{{ansible_env.HOME}}/nvim"
+  tags:
+    - install
+    - nvim
+
+- name: build and install nvim
+  shell: "cd {{ansible_env.HOME}}/nvim && make -j 20 && make install"
+  become: true
+  tags:
+    - install
+    - nvim

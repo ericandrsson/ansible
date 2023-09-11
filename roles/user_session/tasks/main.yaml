@@ -1,0 +1,61 @@
+- name: make sure user bin dir exists
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: 0755
+
+- name: create managed init file
+  copy:
+    src: managedbash_template.sh
+    dest: "{{ managed_bashrc_file }}"
+    force: no
+    mode: 0644
+
+- name: create users init file
+  copy:
+    src: userbash_template.sh
+    dest: "{{ user_bashrc_file }}"
+    force: no
+    mode: 0644
+
+- name: ensure .bash_profile exists
+  copy:
+    content: ""
+    dest: "{{ ansible_env.HOME }}/.bash_profile"
+    force: false
+    mode: 0644
+
+- name: add .local/bin to PATH in .bash_profile
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.bash_profile"
+    block: |
+      # Add ~/.local/bin to the PATH for direnv
+      export PATH="$HOME/.local/bin:$PATH"
+    marker: "# {mark} ANSIBLE PATH MODIFICATION"
+
+- name: source .managedbashrc and .userbashrc from .bashrc
+  blockinfile:
+    marker: "# {mark} ANSIBLE USERSESSION"
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      # source {{ vars.managed_bashrc.path }}
+      # This file is used for bash initialization made by the ansible deployment.
+      if [ -f "$HOME/{{ vars.managed_bashrc.name }}" ]; then
+        . "$HOME/{{ vars.managed_bashrc.name }}"
+      fi
+
+      # source {{ vars.user_bashrc.path }}
+      # This file is used for user specific bashrc customization.
+      if [ -f "$HOME/{{ vars.user_bashrc.name }}" ]; then
+        . "$HOME/{{ vars.user_bashrc.name }}"
+      fi
+
+- name: source aliases in .userbashrc
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.userbashrc"
+    block: |
+      # Source aliases
+      if [ -f ~/.aliases ]; then
+          source ~/.aliases
+      fi
+    marker: "# {mark} ANSIBLE ALIASES"
