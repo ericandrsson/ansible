@@ -38,7 +38,6 @@
     - role: zsh
     - role: starship
     - role: fzf
-    - role: shellfirm
     - role: pyenv
     - role: direnv
     - role: obsidian
