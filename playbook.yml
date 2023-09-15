@@ -30,13 +30,15 @@
       when: ansible_pkg_mgr == 'apt'
   roles:
     - role: core
-    - role: user_session
-    # - role: git
+    # - role: user_session
+    - role: git
     - role: ssh
     - role: dotfiles
     - role: nvim
     - role: zsh
-    - role: powerlevel10k
+    - role: starship
+    - role: fzf
+    - role: shellfirm
     - role: pyenv
     - role: direnv
     - role: obsidian

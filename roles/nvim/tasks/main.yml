@@ -38,6 +38,7 @@
   ansible.builtin.git:
     repo: "git@github.com:neovim/neovim.git"
     dest: "{{ansible_env.HOME}}/nvim"
+    version: v0.9.2
   tags:
     - install
     - nvim

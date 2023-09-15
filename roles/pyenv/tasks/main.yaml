@@ -1,17 +1,20 @@
+- name: install python dependencies
+  become: yes
+  package:
+    name:
+      - openssl-devel
+      - readline-devel
+      - sqlite-devel
+      - bzip2-devel
+      - libffi-devel
+    state: present
+  when: ansible_pkg_mgr == 'dnf'
+
 - name: clone pyenv
   ansible.builtin.git:
     repo: https://github.com/pyenv/pyenv.git
     dest: "{{ ansible_env.HOME }}/.pyenv"
     version: v2.3.23
-
-- name: build dynamic bash extension
-  shell: |
-    src/configure;
-    make -C src;
-  args:
-    chdir: "{{ ansible_env.HOME }}/.pyenv"
-  register: result
-  changed_when: '"gcc" in result.stdout'
 
 - name: setup variables in .profile
   blockinfile:
@@ -51,15 +54,3 @@
       then
         eval "$(pyenv init -)"
       fi
-
-- name: install python dependencies
-  become: yes
-  package:
-    name:
-      - openssl-devel
-      - readline-devel
-      - sqlite-devel
-      - bzip2-devel
-      - libffi-devel
-    state: present
-  when: ansible_pkg_mgr == 'dnf'

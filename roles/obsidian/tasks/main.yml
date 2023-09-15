@@ -1,3 +1,10 @@
+- name: add flatpak repo
+  command:
+    cmd: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  become: false # It's run under user context because of the --user flag
+  tags:
+    - obsidian
+
 - name: install obsidian using flatpak
   command:
     cmd: flatpak install --user -y flathub md.obsidian.Obsidian

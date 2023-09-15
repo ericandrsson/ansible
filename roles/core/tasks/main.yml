@@ -4,7 +4,6 @@
     name: ["cmake"]
   tags:
     - install
-    - neovim
     - core
 
 - name: install lesser system packages
@@ -15,7 +14,6 @@
         "flatpak",
         "lsof",
         "tmux",
-        # "fzf",
         "xclip",
         "tldr",
         "ripgrep",
@@ -26,9 +24,3 @@
   tags:
     - install
 
-- name: add flatpak repo
-  command:
-    cmd: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  become: false # It's run under user context because of the --user flag
-  tags:
-    - install

@@ -1,12 +1,25 @@
+- name: check if direnv exists
+  stat:
+    path: "{{ direnv_dest }}"
+  register: direnv_stat
+  tags:
+    - direnv
+
 - name: download direnv
   get_url:
-    url: https://github.com/direnv/direnv/releases/download/v2.30.3/direnv.linux-amd64
-    dest: "{{ ansible_env.HOME }}/.local/bin/direnv"
-    mode: 0744
+    url: "https://github.com/direnv/direnv/releases/download/v{{ direnv_version }}/direnv.{{ direnv_platform }}"
+    dest: "{{ direnv_dest }}"
+    mode: '0744'
+  when: not direnv_stat.stat.exists
+  tags:
+    - direnv
 
-- name: add direnv to session init
-  blockinfile:
-    marker: "# {mark} ANSIBLE DIRENV"
-    path: "{{ managed_bashrc_file }}"
-    block: |
-      eval "$(direnv hook bash)"
+- name: ensure direnv is initialized in zsh-ansible
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zsh-ansible"
+    line: 'eval "$(direnv hook zsh)"'
+    state: present
+    insertafter: EOF
+    create: yes
+  tags:
+    - direnv

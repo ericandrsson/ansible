@@ -1,0 +1,43 @@
+- name: download shellfirm from github releases
+  get_url:
+    url: "https://github.com/kaplanelad/shellfirm/releases/download/v0.2.7/shellfirm-v0.2.7-x86_64-linux.tar.xz"
+    dest: "/tmp/shellfirm-v0.2.7-x86_64-linux.tar.xz"
+    mode: '0755'
+  tags:
+    - shellfirm
+
+- name: extract shellfirm
+  unarchive:
+    src: "/tmp/shellfirm-v0.2.7-x86_64-linux.tar.xz"
+    dest: "/tmp"
+  tags:
+    - shellfirm
+
+- name: move shellfirm binary to desired location
+  command:
+    cmd: mv /tmp/shellfirm-v0.2.7-x86_64-linux/shellfirm {{ ansible_env.HOME }}/.local/bin/
+  tags:
+    - shellfirm
+
+- name: remove downloaded shellfirm archive and extracted folder
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/tmp/shellfirm-v0.2.7-x86_64-linux.tar.xz"
+    - "/tmp/shellfirm-v0.2.7-x86_64-linux"
+  tags:
+    - shellfirm
+
+- name: validate shellfirm installation
+  command:
+    cmd: shellfirm --version
+  register: shellfirm_version_output
+  tags:
+    - shellfirm
+
+- name: display shellfirm version
+  debug:
+    var: shellfirm_version_output.stdout
+  tags:
+    - shellfirm
